@@ -18,7 +18,7 @@ function Customers() {
  }
   return (
     <View style ={styles.container}>
-     <Text style = { styles.text }>Customers</Text>
+     <Text style = { styles.header }>Customers</Text>
      <FlatList
       data ={customers}
       renderItem = { renderItem }
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     height: '30%',
     width: '80%'
   },
-  text: {
+  header: {
     fontSize: 20,
     color: 'blue'
   }
