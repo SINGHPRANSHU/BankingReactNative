@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {Text, View, TextInput, StyleSheet, StatusBar, KeyboardAvoidingView, TouchableOpacity, Keyboard} from 'react-native';
 import { color } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LoginContext } from '../context/logincontext'
 
 function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [marginFromTop, setMarginFromTop] = useState(200)
+    const [user, setUser] = useContext(LoginContext)
 
     const getToken = () => {
       fetch('https://transactionrest.herokuapp.com/login', {
@@ -25,11 +27,12 @@ function Login() {
 
         }else{
           console.log(token);
-        }
-        AsyncStorage.setItem('token', JSON.stringify(token))
-        .catch((err) => {})
-        AsyncStorage.setItem('expire', (new Date().getTime()+1000*60*60*2).toString())
-        .catch((err) => {})
+          setUser(token)
+          AsyncStorage.setItem('token', JSON.stringify(token))
+          .catch((err) => {})
+          AsyncStorage.setItem('expire', (new Date().getTime()+1000*60*60*2).toString())
+          .catch((err) => {})
+        }    
       })
       .catch(err => {})
     }
