@@ -8,7 +8,7 @@
 
 // In App.js in a new project
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Home from './screens/home'
@@ -17,13 +17,36 @@ import Login from './screens/login'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Anticons from 'react-native-vector-icons/AntDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function App() {
-  const [user, setUser] = useState(false)
+  const [user, setUser] = useState('')
+
+  useEffect(() => {
+    AsyncStorage.getItem('expire').then(data => {
+      if(data){
+        console.log('e',data,new Date().getTime(),data < new Date().getTime());
+        if(data < new Date().getTime()){
+          AsyncStorage.removeItem('token')
+          AsyncStorage.removeItem('expire')
+        }else{
+          AsyncStorage.getItem('token').then(data => {
+            if(data){
+              console.log('m',data);
+              setUser(data)
+            }
+          }).catch(() => {})
+        }
+      }
+    }).catch(() => {})
+  },[])
+
+ 
+  
   return (
     <NavigationContainer>
       <Tab.Navigator initialRouteName = {"Home"}

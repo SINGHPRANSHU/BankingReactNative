@@ -1,14 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import {Text, View, TextInput, StyleSheet, StatusBar, KeyboardAvoidingView, TouchableOpacity, Keyboard} from 'react-native';
 import { color } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [marginFromTop, setMarginFromTop] = useState(200)
 
-    Keyboard.addListener("keyboardDidShow", () => {setMarginFromTop(20)});
-    Keyboard.addListener("keyboardDidHide", () => {setMarginFromTop(200)});
+    const getToken = () => {
+      fetch('https://transactionrest.herokuapp.com/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        })
+      })
+      .then(res => res.json())
+      .then(token => {
+        if(token.message === 'invalid credentials' && token.status === 500){
+
+        }else{
+          console.log(token);
+        }
+        AsyncStorage.setItem('token', JSON.stringify(token))
+        .catch((err) => {})
+        AsyncStorage.setItem('expire', (new Date().getTime()+1000*60*60*2).toString())
+        .catch((err) => {})
+      })
+      .catch(err => {})
+    }
+
+    useEffect(() => {
+      Keyboard.addListener("keyboardDidShow", () => {setMarginFromTop(20)});
+      Keyboard.addListener("keyboardDidHide", () => {setMarginFromTop(200)});
+      return () => {
+        Keyboard.removeAllListeners("keyboardDidShow")
+        Keyboard.removeAllListeners("keyboardDidHide")
+      }
+    }, [marginFromTop])
+
+    
 
   return (
     <KeyboardAvoidingView
@@ -28,7 +63,7 @@ function Login() {
          onChangeText={password => setPassword(password)}
          defaultValue={password}
          />
-       <TouchableOpacity style = {styles.button}>
+       <TouchableOpacity style = {styles.button} onPress = {getToken}>
            <Text style ={{textAlign:'center'}}>Login</Text>
        </TouchableOpacity>
     </KeyboardAvoidingView>
